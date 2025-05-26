@@ -104,19 +104,22 @@ function Profilereview() {
   }
 
   const getReview = async () => {
-    try {
-      const response = await axios.get(`${BASE_URL}/review/${reviewId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        },
-        user_id : idFromJwt
-      });
-      setReviewResto(response.data);
-      console.log(response);
-    } catch (err) {
-      console.error('Failed to fetch restaurants:', err);
-    }
-  };
+  try {
+    const response = await axios.get(`${BASE_URL}/review/${reviewId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      },
+      params: {
+        user_id: idFromJwt
+      }
+    });
+    setReviewResto(response.data);
+    console.log(response);
+  } catch (err) {
+    console.error('Failed to fetch review:', err);
+  }
+};
+
 
   const handleDelete = async (reviewId) => {
     try {
