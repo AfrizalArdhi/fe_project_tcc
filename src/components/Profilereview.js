@@ -105,7 +105,10 @@ function Profilereview() {
 
   const getReview = async () => {
     try {
-      const response = await axios.get(`${BASE_URL}/review`, {
+      const response = await axios.get(`${BASE_URL}/review/${reviewId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
         user_id : idFromJwt
       });
       setReviewResto(response.data);
