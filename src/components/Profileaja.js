@@ -21,7 +21,7 @@ function Profileaja() {
       if (response) {
         try {
           const decoded = jwtDecode(response);
-          console.log("Decoded JWT:", decoded);
+          // console.log("Decoded JWT:", decoded);
           setUsernameFromJwt(decoded.name);
           setEmailFromJwt(decoded.mail);
           setidFromJwt(decoded.userId);
@@ -40,7 +40,7 @@ function Profileaja() {
       try {
         const decoded = jwtDecode(accessToken);
         const currentTime = Date.now() / 1000;
-        console.log(decoded.exp);
+        // console.log(decoded.exp);
 
         if (decoded.exp < currentTime) {
           // Token kadaluarsa, lakukan logout

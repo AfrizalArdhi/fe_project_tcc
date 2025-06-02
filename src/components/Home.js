@@ -46,7 +46,7 @@ function Home() {
       try {
         const decoded = jwtDecode(accessToken);
         const currentTime = Date.now() / 1000;
-        console.log(decoded.exp);
+        // console.log(decoded.exp);
 
         if (decoded.exp < currentTime) {
           // Token kadaluarsa, lakukan logout
@@ -87,7 +87,7 @@ function Home() {
     try {
       const response = await axios.get(`${BASE_URL}/restaurant`);
       setRestaurants(response.data);
-      console.log(response);
+      // console.log(response);
     } catch (err) {
       console.error('Failed to fetch restaurants:', err);
       setError('Failed to load restaurants. Please try again later.');
@@ -106,18 +106,29 @@ function Home() {
         withCredentials: true
       });
 
-      // Ambil access token dari response (sesuaikan nama properti dengan backend kamu)
       const accessToken = response.data.accessToken;
-
-      // Simpan ke localStorage
       localStorage.setItem("accessToken", accessToken);
 
-      // Update state dengan benar
+      // Decode token
+      const decoded = jwtDecode(accessToken);
+      const role = decoded.role;
+
+      // Simpan role ke localStorage (opsional)
+      localStorage.setItem("role", role);
+
+      // Cek role dan redirect sesuai peran
+      if (role === 1) {
+        alert("Login as Admin");
+        navigate("/Editresto");
+      } else if (role === 2) {
+        alert("Login Success");
+        navigate("/");
+      } else {
+        alert("Unknown role");
+      }
+
       setIsLoggedIn(true);
       closeModal();
-      console.log("Login Success");
-      alert("Login Success!");
-      navigate("/"); 
       window.location.reload();
     } catch (error) {
       alert("Username atau Password Salah!");
@@ -187,10 +198,16 @@ function Home() {
                 {
                   isLoggedIn ? (
                     <>
+                    {/* menu edit */}
+                    {/* <Link to="/editresto" style={{textDecoration: "none", marginTop: "5px"}}>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="#8B0000" class="bi bi-pencil-fill" viewBox="0 0 16 16">
+                        <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.5.5 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11z"/>
+                      </svg>
+                    </Link> */}
                     <button style={{backgroundColor: "#8B0000", borderRadius: 7, padding: 5, height: "39px", color: "white", border: "2px solid #8B0000"}} onClick={handleLogout}>
                       <h1 style={{fontSize: 20}}>Logout</h1>
                     </button>
-                    <Link to="/Profileaja" style={{textDecoration: "none"}}>
+                    <Link to="/Profileaja" style={{textDecoration: "none", marginTop: "2px"}}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="#8B0000" className="bi bi-person-circle" viewBox="0 0 16 16">
                       <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
                       <path fillRule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
@@ -216,32 +233,24 @@ function Home() {
         
         <div style={{height: 1, backgroundColor: "black"}}></div>
 
-          {/* Carouesl */}
+          {/* Carousel */}
           <div id="carouselExample" className="carousel slide" data-bs-ride="carousel" style={{height: 450, backgroundColor: "grey"}}>
             <div className="carousel-inner">
               <div className="carousel-item active">
-                <img src="https://assets-a1.kompasiana.com/items/album/2023/06/19/kuliner-2-649050614addee1b710fae73.jpg" className="d-block w-100" alt="Slide 1" style={{height: 450, objectFit: "cover"}}/>              
+                <img src="https://storage.cloud.google.com/saputra/images/poster1.jpg" className="d-block w-100" alt="Slide 1" style={{height: 450, objectFit: "cover"}}/>              
               </div>
               <div className="carousel-item">
-                <img src="https://bisnisukm.com/uploads/2020/02/11-anak-bangsa-ini-sukses-promosikan-kuliner-nusantara-di-luar-negeri.jpg" className="d-block w-100" alt="Slide 2" style={{height: 450, objectFit: "cover"}}/>
+                <img src="https://storage.cloud.google.com/saputra/images/poster2.jpg" className="d-block w-100" alt="Slide 2" style={{height: 450, objectFit: "cover"}}/>
               </div>
               <div className="carousel-item">
-                <img src="https://wahananews.co/photo/berita/dir022022/menko-marves-minta-hotel-hotel-rajin-kenalkan-kuliner-nusantara_xS7yknZP8p.jpg" className="d-block w-100" alt="Slide 3" style={{height: 450, objectFit: "cover"}}s/>
+                <img src="https://storage.cloud.google.com/saputra/images/poster3.jpg" className="d-block w-100" alt="Slide 3" style={{height: 450, objectFit: "cover"}}/>
               </div>
             </div>
-            <button
-              className="carousel-control-prev"
-              type="button"
-              data-bs-target="#carouselExample"
-              data-bs-slide="prev">
+            <button className="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
               <span className="carousel-control-prev-icon" aria-hidden="true"></span>
               <span className="visually-hidden">Previous</span>
             </button>
-            <button
-              className="carousel-control-next"
-              type="button"
-              data-bs-target="#carouselExample"
-              data-bs-slide="next">
+            <button className="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
               <span className="carousel-control-next-icon" aria-hidden="true"></span>
               <span className="visually-hidden">Next</span>
             </button>
@@ -265,41 +274,40 @@ function Home() {
               <div key={post.id}>
                 <Link to={`/Resto/${post.id}`} state={{restaurants: post}} style={{ display: "inline-block", textDecoration: "none", color: "inherit" }}>
                 
-              <div style={{backgroundColor: "white", width: "280px", height: "220px", borderRadius: 15, border: "1px solid grey", flexShrink: 0, marginRight: "10px"}}>
-                <img src={post.image_url} alt="Restaurant" style={{ width: "100%", height: "60%", objectFit: "cover", borderTopLeftRadius: 15, borderTopRightRadius: 15}}/>
-                <div style={{padding: "3%", height: "40%", backgroundColor: "white", borderBottomLeftRadius: 15, borderBottomRightRadius: 15}}>
+                <div style={{backgroundColor: "white", width: "280px", height: "220px", borderRadius: 15, border: "1px solid grey", flexShrink: 0, marginRight: "10px"}}>
+                  <img src={post.image_url} alt="Restaurant" style={{ width: "100%", height: "60%", objectFit: "cover", borderTopLeftRadius: 15, borderTopRightRadius: 15}}/>
+                  <div style={{padding: "3%", height: "40%", backgroundColor: "white", borderBottomLeftRadius: 15, borderBottomRightRadius: 15}}>
 
-                  <div style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
-                    
-                    <p style={{fontSize: 20, marginTop: -5}}>{post.restaurant_name}</p> 
-                    <div style={{display: "flex", justifyContent: "center", alignItems: "center", gap: 10, marginTop: -5}}>
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-star-fill" viewBox="0 0 16 16" style={{marginTop: -15}}>
-                        <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
+                    <div style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
+                      <p style={{fontSize: 20, marginTop: -5}}>{post.restaurant_name}</p> 
+                      <div style={{display: "flex", justifyContent: "center", alignItems: "center", gap: 10, marginTop: -5}}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-star-fill" viewBox="0 0 16 16" style={{marginTop: -15}}>
+                          <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
+                        </svg>
+                        <p style={{fontSize: 20}}>{post.rating}</p>
+                      </div>
+                    </div>
+
+                    <div style={{marginTop: "2%"}}>
+                      <p style={{fontSize: 14, marginTop: -20}}>{post.type}</p>
+                    </div>
+
+                    <div style={{marginTop: -10, display: "flex", alignItems: "center", gap: "1%"}}>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-clock" viewBox="0 0 16 16" style={{marginTop: -15}}>
+                        <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z"/>
+                        <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0"/>
                       </svg>
-                      <p style={{fontSize: 20}}>{post.rating}</p>
+
+                      <p style={{fontSize: 14, marginRight: 10}}>10-15 min</p>
+
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-currency-dollar" viewBox="0 0 16 16" style={{marginTop: -15}}>
+                        <path d="M4 10.781c.148 1.667 1.513 2.85 3.591 3.003V15h1.043v-1.216c2.27-.179 3.678-1.438 3.678-3.3 0-1.59-.947-2.51-2.956-3.028l-.722-.187V3.467c1.122.11 1.879.714 2.07 1.616h1.47c-.166-1.6-1.54-2.748-3.54-2.875V1H7.591v1.233c-1.939.23-3.27 1.472-3.27 3.156 0 1.454.966 2.483 2.661 2.917l.61.162v4.031c-1.149-.17-1.94-.8-2.131-1.718zm3.391-3.836c-1.043-.263-1.6-.825-1.6-1.616 0-.944.704-1.641 1.8-1.828v3.495l-.2-.05zm1.591 1.872c1.287.323 1.852.859 1.852 1.769 0 1.097-.826 1.828-2.2 1.939V8.73z"/>
+                      </svg>
+                    
+                      <p style={{fontSize: 14}}>Rp10,000.00</p>
                     </div>
                   </div>
-
-                  <div style={{marginTop: "2%"}}>
-                    <p style={{fontSize: 14, marginTop: -20}}>{post.type}</p>
-                  </div>
-
-                  <div style={{marginTop: -10, display: "flex", alignItems: "center", gap: "1%"}}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-clock" viewBox="0 0 16 16" style={{marginTop: -15}}>
-                      <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z"/>
-                      <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0"/>
-                    </svg>
-
-                    <p style={{fontSize: 14, marginRight: 10}}>10-15 min</p>
-
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-currency-dollar" viewBox="0 0 16 16" style={{marginTop: -15}}>
-                      <path d="M4 10.781c.148 1.667 1.513 2.85 3.591 3.003V15h1.043v-1.216c2.27-.179 3.678-1.438 3.678-3.3 0-1.59-.947-2.51-2.956-3.028l-.722-.187V3.467c1.122.11 1.879.714 2.07 1.616h1.47c-.166-1.6-1.54-2.748-3.54-2.875V1H7.591v1.233c-1.939.23-3.27 1.472-3.27 3.156 0 1.454.966 2.483 2.661 2.917l.61.162v4.031c-1.149-.17-1.94-.8-2.131-1.718zm3.391-3.836c-1.043-.263-1.6-.825-1.6-1.616 0-.944.704-1.641 1.8-1.828v3.495l-.2-.05zm1.591 1.872c1.287.323 1.852.859 1.852 1.769 0 1.097-.826 1.828-2.2 1.939V8.73z"/>
-                    </svg>
-                  
-                    <p style={{fontSize: 14}}>Rp10,000.00</p>
-                  </div>
                 </div>
-              </div>
               </Link>
             </div>
             ))}
@@ -315,10 +323,16 @@ function Home() {
         </div>
 
         <div style={{backgroundColor: "none", height: "430px", display: "flex", justifyContent: "center", alignItems: "center", gap: 70}}>
+
           <div style={{backgroundColor: "white", height: "380px", width: "380px", padding: 20, border: "1px solid rgb(155, 155, 155)", boxShadow: "6px 6px 6px grey"}}>
-            <div>
-              <p style={{fontSize: 32, textAlign:"center"}}>Anggota Kelompok</p>
-              <p style={{fontSize: 18, textAlign: "center"}}> 123220119 - Anugraha Galih Saputra <br/> 123220128 - Afrizal Ardhi </p>
+            <div style={{backgroundColor: "none", height: "100%", width: "100%", justifyContent: "center", alignItems: "center", display: "flex"}}>
+              <div>
+                <p style={{fontSize: 32, textAlign:"center"}}>Anggota Kelompok</p>
+                <p style={{fontSize: 18, textAlign: "center"}}>  Anugraha Galih Saputra 123220119 
+</p>
+                <p style={{fontSize: 18, textAlign: "center"}}>Afrizal Ardhi-123220128
+</p>
+              </div>
             </div>
           </div>
 
@@ -326,7 +340,7 @@ function Home() {
             <div style={{backgroundColor: "none", height: "100%", width: "100%", justifyContent: "center", alignItems: "center", display: "flex"}}>
               <div>
                 <p style={{fontSize: 32, textAlign:"center"}}>Myoui Food</p>
-                <p style={{fontSize: 18, textAlign: "center"}}>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque ut ante et felis semper interdum. Ut tempor ex urna, fringilla condimentum sem gravida quis. Aliquam elementum eleifend libero dictum aliquet. Morbi pulvinar lorem commodo metus placerat placerat. Nullam vitae libero at libero aliquam viverra. Pellentesque varius dictum purus, </p>
+                <p style={{fontSize: 18, textAlign: "center"}}>  Myoui Food adalah platform pemesanan makanan daring yang menyediakan berbagai pilihan menu dari restoran lokal favorit Anda. Kami berkomitmen menyajikan pengalaman kuliner yang mudah dan cepat langsung ke depan pintu Anda.</p>
               </div>
             </div>
           </div>
@@ -335,7 +349,7 @@ function Home() {
             <div style={{backgroundColor: "none", height: "100%", width: "100%", justifyContent: "center", alignItems: "center", display: "flex"}}>
               <div>
                 <p style={{fontSize: 32, textAlign:"center"}}>Best Restaurant</p>
-                <p style={{fontSize: 18, textAlign: "center"}}>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque ut ante et felis semper interdum. Ut tempor ex urna, fringilla condimentum sem gravida quis. Aliquam elementum eleifend libero dictum aliquet. Morbi pulvinar lorem commodo metus placerat placerat. Nullam vitae libero at libero aliquam viverra. Pellentesque varius dictum purus, </p>
+                <p style={{fontSize: 18, textAlign: "center"}}>  Best Restaurant menyajikan berbagai macam hidangan internasional dan lokal dengan cita rasa terbaik. Dengan pelayanan prima dan suasana nyaman, kami menjadi destinasi favorit keluarga dan profesional.</p>
               </div>
             </div>
 

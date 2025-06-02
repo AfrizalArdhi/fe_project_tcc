@@ -18,12 +18,18 @@ function Profilereview() {
   const [animateReviewModal, setAnimateReviewModal] = useState(false);
 
 
-  // ini coba anu
+  
   useEffect(()=>{
       getData();
-      getReview();
       checkLogin(setIsLoggedIn);
   }, []);
+
+  useEffect(() => {
+  if (idFromJwt && token) {
+    getReview(); // Panggil getReview hanya setelah idFromJwt dan token tersedia
+  }
+}, [idFromJwt, token]);
+
 
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
 
@@ -34,7 +40,7 @@ function Profilereview() {
       try {
         const decoded = jwtDecode(accessToken);
         const currentTime = Date.now() / 1000;
-        console.log(decoded.exp);
+        // console.log(decoded.exp);
 
         if (decoded.exp < currentTime) {
           // Token kadaluarsa, lakukan logout
@@ -93,7 +99,7 @@ function Profilereview() {
     if (response) {
       try {
         const decoded = jwtDecode(response);
-        console.log("Decoded JWT:", decoded);
+        // console.log("Decoded JWT:", decoded);
         setUsernameFromJwt(decoded.name);
         setidFromJwt(decoded.userId);
         setToken(response);
@@ -105,15 +111,18 @@ function Profilereview() {
 
   const getReview = async () => {
     try {
-      const response = await axios.get(`${BASE_URL}/review`, {
-        user_id : idFromJwt
+      const response = await axios.get(`${BASE_URL}/review/user/${idFromJwt}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
       });
       setReviewResto(response.data);
-      console.log(response);
+      // console.log(response);
     } catch (err) {
-      console.error('Failed to fetch restaurants:', err);
+      console.error('Failed to fetch review:', err);
     }
   };
+
 
   const handleDelete = async (reviewId) => {
     try {
@@ -161,7 +170,6 @@ function Profilereview() {
 
 
   return (
-
     <div style={{ backgroundColor: "none", height: 1000, margin: 0, padding: 0}}>
       
       {/* Navbar ya */}
@@ -271,54 +279,14 @@ function Profilereview() {
           <div style={{  width: "400px",  backgroundColor: "white",  borderRadius: "15px",  padding: "30px",  boxShadow: "0 5px 20px rgba(0,0,0,0.3)",  position: "relative",  transform: animateReviewModal ? "scale(1)" : "scale(0.8)",   transition: "transform 0.3s ease"  }}>
             <button onClick={closeReviewModal} style={{ position: "absolute", top: 10, right: 10, fontSize: 20, border: "none", background: "none", cursor: "pointer" }}>&times;</button>
             <h2 style={{ textAlign: "center", fontSize: 24, marginBottom: 10 }}>Write a Review</h2>
-            <form 
-            onSubmit={handleEdit}
-            >
-              <input 
-                type="text" 
-                value={usernameFromJwt} 
-                readOnly 
-                style={{ 
-                  width: "100%", 
-                  padding: 10, 
-                  marginBottom: 10,   
-                  border: "1px solid #8B0000", 
-                  borderRadius: 8,
-                  backgroundColor: "#f8f8f8"
-                }} 
-              />
+            <form onSubmit={handleEdit}>
+              <input  type="text"  value={usernameFromJwt}  readOnly  style={{  width: "100%",  padding: 10,  marginBottom: 10,    border: "1px solid #8B0000",  borderRadius: 8, backgroundColor: "#f8f8f8" }}  />
               
               {/* Review Text */}
-              <textarea 
-                placeholder="Your Review" 
-                style={{ 
-                  width: "100%",  
-                  padding: 10, 
-                  height: 100, 
-                  marginBottom: 10, 
-                  border: "1px solid #8B0000", 
-                  borderRadius: 8,
-                  resize: "vertical" // Allows vertical resizing only
-                }} 
-                value={foodReview} 
-                onChange={(e) => setFoodReview(e.target.value)} 
-                required 
-                minLength="10" // Minimum character requirement
-              />
+              <textarea   placeholder="Your Review"   style={{   width: "100%",    padding: 10,   height: 100,   marginBottom: 10,   border: "1px solid #8B0000",   borderRadius: 8,  resize: "vertical"  }}   value={foodReview}   onChange={(e) => setFoodReview(e.target.value)}   required   minLength="10"  />
               
               {/* Rating Select */}
-              <select style={{ 
-                  width: "100%", 
-                  padding: 10, 
-                  marginBottom: 10, 
-                  border: "1px solid #8B0000", 
-                  borderRadius: 8,
-                  cursor: "pointer"
-                }}
-                value={rating}
-                onChange={(e) => setRating(Number(e.target.value))}
-                required
-              >
+              <select style={{  width: "100%",  padding: 10,  marginBottom: 10,  border: "1px solid #8B0000",  borderRadius: 8, cursor: "pointer" }} value={rating} onChange={(e) => setRating(Number(e.target.value))} required >
                 <option value="">Rate</option>
                 <option value="5">⭐ 5 - Excellent</option>
                 <option value="4">⭐ 4 - Good</option>
@@ -328,23 +296,7 @@ function Profilereview() {
               </select>
               
               {/* Submit Button */}
-              <button 
-                type="submit" 
-                style={{ 
-                  width: "100%", 
-                  padding: 10, 
-                  backgroundColor: "#8B0000", 
-                  color: "white", 
-                  borderRadius: 8, 
-                  border: "none",
-                  cursor: "pointer",
-                  fontWeight: "bold",
-                  transition: "background-color 0.3s",
-                  ":hover": {
-                    backgroundColor: "#A52A2A" // Darker red on hover
-                  }
-                }}
-              >
+              <button  type="submit"  style={{  width: "100%",  padding: 10,  backgroundColor: "#8B0000",  color: "white",  borderRadius: 8,  border: "none", cursor: "pointer", fontWeight: "bold", transition: "background-color 0.3s", ":hover": { backgroundColor: "#A52A2A" } }} >
                 Submit Review
               </button>
             </form>

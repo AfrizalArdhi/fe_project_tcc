@@ -54,7 +54,7 @@ function Resto() {
     try {
       const response = await axios.get(`${BASE_URL}/restaurant/${id}`);
       setRestaurantGet(response.data);
-      console.log("ini id :", response);
+      // console.log("ini id :", response);
     } catch (error) {
       console.error("Error fetching restaurant:", error);
         setError("Failed to load restaurant data");
@@ -66,11 +66,11 @@ function Resto() {
     if (response) {
       try {
         const decoded = jwtDecode(response);
-        console.log("Decoded JWT:", decoded);
+        // console.log("Decoded JWT:", decoded);
         setUsernameFromJwt(decoded.name);
         setidFromJwt(decoded.userId);
         setToken(decoded);
-        console.log({msg: token});
+        // console.log({msg: token});
       } catch (error) {
         console.error("Invalid token", error);
       }
@@ -94,7 +94,7 @@ function Resto() {
       }, {});
 
       setGroupedMenu(grouped);
-      console.log(grouped);
+      // console.log(grouped);
     } catch (error) {
       console.error('Error fetching Menu:', error);
     } finally {
@@ -106,7 +106,7 @@ function Resto() {
     try {
       const response = await axios.get(`${BASE_URL}/restaurant/${id}/review`);
       setReviewResto(response.data);
-      console.log(response);
+      // console.log(response);
       setTotalReviews(response.data.length);
     } catch (err) {
       console.error('Failed to fetch restaurants:', err);
@@ -135,6 +135,7 @@ function Resto() {
       }
     }
   };
+
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
@@ -145,22 +146,32 @@ function Resto() {
         withCredentials: true
       });
 
-      // Ambil access token dari response (sesuaikan nama properti dengan backend kamu)
       const accessToken = response.data.accessToken;
-
-      // Simpan ke localStorage
       localStorage.setItem("accessToken", accessToken);
 
-      // Update state dengan benar
-      setIsLoggedIn(true);
-      setShowModal(false);
-      // Navigasi ke halaman utama setelah login berhasil
-      console.log("Login Success");
-      alert("Login Success!");
-      navigate("/"); 
-      window.location.reload();
+      // Decode token
+      const decoded = jwtDecode(accessToken);
+      const role = decoded.role;
 
+      // Simpan role ke localStorage (opsional)
+      localStorage.setItem("role", role);
+
+      // Cek role dan redirect sesuai peran
+      if (role === 1) {
+        alert("Login as Admin");
+        navigate("/Editresto");
+      } else if (role === 2) {
+        alert("Login Success");
+        navigate("/");
+      } else {
+        alert("Unknown role");
+      }
+
+      setIsLoggedIn(true);
+      closeModal();
+      window.location.reload();
     } catch (error) {
+      alert("Username atau Password Salah!");
       if (error.response) {
         setMsg(error.response.data.msg);
       }
@@ -206,7 +217,7 @@ function Resto() {
       try {
         const decoded = jwtDecode(accessToken);
         const currentTime = Date.now() / 1000;
-        console.log(decoded.exp);
+        // console.log(decoded.exp);
 
         if (decoded.exp < currentTime) {
           // Token kadaluarsa, lakukan logout
@@ -240,6 +251,8 @@ function Resto() {
       }
     }
   }
+
+  
 
   //anuin logout
   const handleLogout = async (e) => {
@@ -441,8 +454,8 @@ function Resto() {
       </div>
       
       <div style={{display: "flex", justifyContent: "center", alignItems: "center"}}>
-        <div style={{backgroundColor: "none", width: "86%", display: "flex"}}>
-          <div>
+        <div style={{width: "86%", display: "flex"}}>
+          <div style={{width: "100%"}}>
             {/* awal dari kategori */}
             {Object.keys(groupedMenu).map((category) => (
               <div key={category} id={category} style={{ marginTop: 30 }}>
@@ -457,7 +470,7 @@ function Resto() {
                 </div>
               
                 {/* Daftar makanan per kategori */}
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', width: '100%', marginTop: "20px" }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', marginTop: "20px"}}>
                   {groupedMenu[category].map((food) => (
                     <div key={food.id} style={{ width: "450px", backgroundColor: "white", height: "150px", borderRadius: 15, border: "1px solid grey", flexShrink: 0, display: "flex", justifyContent: "space-between"}}>
                       <div style={{ padding: 10 }}>
@@ -487,7 +500,7 @@ function Resto() {
           {/* Review */}
           <div style={{backgroundColor: "none", width: "40%", marginLeft: "30px", marginTop: "40px", padding: "20px", border: "1px solid black"}}>
             <p style={{fontSize: 35, color: "black", marginTop: 0, fontWeight: "bold"}}>
-              Costumer Review
+              Customer Review
             </p>
 
             {/* <div style={{backgroundColor:"none", width:"100%", height: "10px", display: "flex", justifyContent: "center", alignItems: "center"}}>
